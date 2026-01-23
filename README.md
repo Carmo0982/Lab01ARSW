@@ -20,7 +20,14 @@
 	1. Cree 3 hilos de tipo CountThread, asignándole al primero el intervalo [0..99], al segundo [99..199], y al tercero [200..299].
 	2. Inicie los tres hilos con 'start()'.
 	3. Ejecute y revise la salida por pantalla. 
+   ![Screenshot 2026-01-23 082950.png](..%2F..%2F..%2FPictures%2FScreenshots%2FScreenshot%202026-01-23%20082950.png)
+   	Como se puede apreciar al ejecutar los tres hilos al mismo tiempo con diferentes intervalos, la secuencia de números
+	se imprimen en desorden.
+   
 	4. Cambie el incio con 'start()' por 'run()'. Cómo cambia la salida?, por qué?.
+
+		Al cambiarlo, la secuencia de números se imprime de forma correcta porque al usar .run() no 
+   		se están usando hilos y el sistema orpertivo decide cuando correr cada uno.
 
 **Parte II - Ejercicio Black List Search**
 
