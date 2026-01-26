@@ -1,34 +1,48 @@
 package edu.eci.arsw.threads;
+import edu.eci.arsw.blacklistvalidator.HostBlackListsValidator;
 import edu.eci.arsw.spamkeywordsdatasource.HostBlacklistsDataSourceFacade;
 
+import java.util.LinkedList;
+
 public class HostBlackListsThread extends Thread {
-    private static final int BLACK_LIST_ALARM_COUNT=5;
     private String ipAddress;
     private int start;
     private int end;
+    private HostBlacklistsDataSourceFacade skds;
 
     public HostBlackListsThread(String ipAddress, int start, int end, HostBlacklistsDataSourceFacade skds) {
         this.ipAddress = ipAddress;
         this.start = start;
         this.end = end;
-
-
+        this.skds = skds;
     }
+
+    LinkedList<Integer> blackListOcurrences=new LinkedList<>();
+    int ocurrencesCount = 0;
+    int checkedListsCount=0;
 
     @Override
     public void run() {
-        int ocurrencesCount = 0;
+        for (int i = start; i < end && ocurrencesCount< HostBlackListsValidator.BLACK_LIST_ALARM_COUNT; i++) {
+            checkedListsCount++;
 
-        for (int i=0;i < end && ocurrencesCount<BLACK_LIST_ALARM_COUNT;i++) {
-
-            if (skds.isInBlackListServer(i, ipaddress)){
+            if (skds.isInBlackListServer(i, ipAddress)) {
                 blackListOcurrences.add(i);
                 ocurrencesCount++;
             }
         }
     }
 
-    public int countOccurrences() {
-        return 0;
+    public int getOccurrencesCount() {
+        return ocurrencesCount;
+
+    }
+
+    public int getCheckedListsCount() {
+        return checkedListsCount;
+    }
+
+    public LinkedList<Integer> getBlackListOcurrences() {
+        return blackListOcurrences;
     }
 }
