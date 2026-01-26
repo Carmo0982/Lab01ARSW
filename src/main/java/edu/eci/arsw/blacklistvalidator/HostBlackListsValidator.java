@@ -42,7 +42,7 @@ public class HostBlackListsValidator {
         if (skds.getRegisteredServersCount() % n == 0) {
             int serversPerThread = skds.getRegisteredServersCount() / n;
             for (int i = 0; i < n; i++) {
-                HostBlackListsThread thread = new HostBlackListsThread(ipaddress, i * serversPerThread,
+                HostBlackListsThread thread = new HostBlackListsThread(ipaddress,i * serversPerThread,
                         (i + 1) * serversPerThread, skds);
                 thread.start();
             }
