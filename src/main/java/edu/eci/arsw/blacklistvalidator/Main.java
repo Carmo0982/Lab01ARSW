@@ -19,7 +19,7 @@ public class Main {
         int core = Runtime.getRuntime().availableProcessors();
         System.out.println(core);
         try {
-            blackListOcurrences = hblv.checkHost("202.24.34.55", 100);
+            blackListOcurrences = hblv.checkHost("202.24.34.55", 200);
         } catch (InterruptedException ex) {
             System.out.println("The host could not be checked");
         }
