@@ -17,7 +17,7 @@ public class Main {
         HostBlackListsValidator hblv=new HostBlackListsValidator();
         List<Integer> blackListOcurrences = null;
         try {
-            blackListOcurrences = hblv.checkHost("202.24.34.55", 101);
+            blackListOcurrences = hblv.checkHost("202.24.34.55", 100);
         } catch (InterruptedException ex) {
             System.out.println("The host could not be checked");
         }
