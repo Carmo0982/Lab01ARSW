@@ -1,31 +1,32 @@
-
 ### Escuela Colombiana de Ingeniería
+
 ### Arquitecturas de Software - ARSW
+
 ## Ejercicio Introducción al paralelismo - Hilos - Caso BlackListSearch
 
-
 ### Dependencias:
-####   Lecturas:
-*  [Threads in Java](http://beginnersbook.com/2013/03/java-threads/)  (Hasta 'Ending Threads')
-*  [Threads vs Processes]( http://cs-fundamentals.com/tech-interview/java/differences-between-thread-and-process-in-java.php)
+
+#### Lecturas:
+
+- [Threads in Java](http://beginnersbook.com/2013/03/java-threads/) (Hasta 'Ending Threads')
+- [Threads vs Processes](http://cs-fundamentals.com/tech-interview/java/differences-between-thread-and-process-in-java.php)
 
 ### Descripción
-  Este ejercicio contiene una introducción a la programación con hilos en Java, además de la aplicación a un caso concreto.
-  
+
+Este ejercicio contiene una introducción a la programación con hilos en Java, además de la aplicación a un caso concreto.
 
 **Parte I - Introducción a Hilos en Java**
 
 1. De acuerdo con lo revisado en las lecturas, complete las clases CountThread, para que las mismas definan el ciclo de vida de un hilo que imprima por pantalla los números entre A y B.
-2. Complete el método __main__ de la clase CountMainThreads para que:
-	1. Cree 3 hilos de tipo CountThread, asignándole al primero el intervalo [0..99], al segundo [99..199], y al tercero [200..299].
-	2. Inicie los tres hilos con 'start()'.
-	3. Ejecute y revise la salida por pantalla. 
-	4. Cambie el incio con 'start()' por 'run()'. Cómo cambia la salida?, por qué?.
+2. Complete el método **main** de la clase CountMainThreads para que:
+   1. Cree 3 hilos de tipo CountThread, asignándole al primero el intervalo [0..99], al segundo [99..199], y al tercero [200..299].
+   2. Inicie los tres hilos con 'start()'.
+   3. Ejecute y revise la salida por pantalla.
+   4. Cambie el incio con 'start()' por 'run()'. Cómo cambia la salida?, por qué?.
 
 **Parte II - Ejercicio Black List Search**
 
-
-Para un software de vigilancia automática de seguridad informática se está desarrollando un componente encargado de validar las direcciones IP en varios miles de listas negras (de host maliciosos) conocidas, y reportar aquellas que existan en al menos cinco de dichas listas. 
+Para un software de vigilancia automática de seguridad informática se está desarrollando un componente encargado de validar las direcciones IP en varios miles de listas negras (de host maliciosos) conocidas, y reportar aquellas que existan en al menos cinco de dichas listas.
 
 Dicho componente está diseñado de acuerdo con el siguiente diagrama, donde:
 
@@ -41,7 +42,6 @@ INFO: HOST 205.24.34.55 Reported as trustworthy
 
 INFO: HOST 205.24.34.55 Reported as NOT trustworthy
 
-
 Al programa de prueba provisto (Main), le toma sólo algunos segundos análizar y reportar la dirección provista (200.24.34.55), ya que la misma está registrada más de cinco veces en los primeros servidores, por lo que no requiere recorrerlos todos. Sin embargo, hacer la búsqueda en casos donde NO hay reportes, o donde los mismos están dispersos en las miles de listas negras, toma bastante tiempo.
 
 Éste, como cualquier método de búsqueda, puede verse como un problema [vergonzosamente paralelo](https://en.wikipedia.org/wiki/Embarrassingly_parallel), ya que no existen dependencias entre una partición del problema y otra.
@@ -51,11 +51,9 @@ Para 'refactorizar' este código, y hacer que explote la capacidad multi-núcleo
 1. Cree una clase de tipo Thread que represente el ciclo de vida de un hilo que haga la búsqueda de un segmento del conjunto de servidores disponibles. Agregue a dicha clase un método que permita 'preguntarle' a las instancias del mismo (los hilos) cuantas ocurrencias de servidores maliciosos ha encontrado o encontró.
 
 2. Agregue al método 'checkHost' un parámetro entero N, correspondiente al número de hilos entre los que se va a realizar la búsqueda (recuerde tener en cuenta si N es par o impar!). Modifique el código de este método para que divida el espacio de búsqueda entre las N partes indicadas, y paralelice la búsqueda a través de N hilos. Haga que dicha función espere hasta que los N hilos terminen de resolver su respectivo sub-problema, agregue las ocurrencias encontradas por cada hilo a la lista que retorna el método, y entonces calcule (sumando el total de ocurrencuas encontradas por cada hilo) si el número de ocurrencias es mayor o igual a _BLACK_LIST_ALARM_COUNT_. Si se da este caso, al final se DEBE reportar el host como confiable o no confiable, y mostrar el listado con los números de las listas negras respectivas. Para lograr este comportamiento de 'espera' revise el método [join](https://docs.oracle.com/javase/tutorial/essential/concurrency/join.html) del API de concurrencia de Java. Tenga también en cuenta:
+   - Dentro del método checkHost Se debe mantener el LOG que informa, antes de retornar el resultado, el número de listas negras revisadas VS. el número de listas negras total (línea 60). Se debe garantizar que dicha información sea verídica bajo el nuevo esquema de procesamiento en paralelo planteado.
 
-	* Dentro del método checkHost Se debe mantener el LOG que informa, antes de retornar el resultado, el número de listas negras revisadas VS. el número de listas negras total (línea 60). Se debe garantizar que dicha información sea verídica bajo el nuevo esquema de procesamiento en paralelo planteado.
-
-	* Se sabe que el HOST 202.24.34.55 está reportado en listas negras de una forma más dispersa, y que el host 212.24.24.55 NO está en ninguna lista negra.
-
+   - Se sabe que el HOST 202.24.34.55 está reportado en listas negras de una forma más dispersa, y que el host 212.24.24.55 NO está en ninguna lista negra.
 
 **Parte II.I Para discutir la próxima clase (NO para implementar aún)**
 
@@ -105,11 +103,34 @@ Un aspecto relevante a destacar es que, al ejecutar el programa con 100 hilos, n
 
 1. Según la [ley de Amdahls](https://www.pugetsystems.com/labs/articles/Estimating-CPU-Performance-using-Amdahls-Law-619/#WhatisAmdahlsLaw?):
 
-	![](img/ahmdahls.png), donde _S(n)_ es el mejoramiento teórico del desempeño, _P_ la fracción paralelizable del algoritmo, y _n_ el número de hilos, a mayor _n_, mayor debería ser dicha mejora. Por qué el mejor desempeño no se logra con los 500 hilos?, cómo se compara este desempeño cuando se usan 200?. 
+   ![](img/ahmdahls.png), donde _S(n)_ es el mejoramiento teórico del desempeño, _P_ la fracción paralelizable del algoritmo, y _n_ el número de hilos, a mayor _n_, mayor debería ser dicha mejora. Por qué el mejor desempeño no se logra con los 500 hilos?, cómo se compara este desempeño cuando se usan 200?.
 
 2. Cómo se comporta la solución usando tantos hilos de procesamiento como núcleos comparado con el resultado de usar el doble de éste?.
 
 3. De acuerdo con lo anterior, si para este problema en lugar de 100 hilos en una sola CPU se pudiera usar 1 hilo en cada una de 100 máquinas hipotéticas, la ley de Amdahls se aplicaría mejor?. Si en lugar de esto se usaran c hilos en 100/c máquinas distribuidas (siendo c es el número de núcleos de dichas máquinas), se mejoraría?. Explique su respuesta.
 
+---
 
+## Solución Parte IV
 
+### Respuesta 1: 
+
+En este ejercicio, en nuestra implementación `checkHost()` parte el rango de búsqueda (≈80.000 servidores) en N segmentos y crea N hilos; luego esperamos a todos con `join()`. Cuando N es muy grande (por ejemplo 500), cada hilo termina revisando un pedacito muy pequeño (≈160 servidores). Eso hace que el costo fijo de “montar la paralelización” (crear hilos, hacer `start()` y luego sincronizar con `join()`) empiece a pesar más que el trabajo útil (llamar a `skds.isInBlackListServer()`).
+
+Además, en nuestra implementación usamos un contador global compartido (`HostBlackListsThread.countApparences`) como condición de parada en el `for` de cada hilo. Con muchos hilos, ese contador se vuelve un punto de contención y, como no está protegido (no es atómico ni está sincronizado), pueden aparecer efectos de carrera: hilos que no ven a tiempo el valor actualizado y siguen consultando más listas de las necesarias. En paralelo, el sistema operativo también pierde tiempo alternando entre muchísimos hilos (context switching) cuando hay muchos más hilos que núcleos reales.
+
+Comparado con 200 hilos, normalmente se obtiene un mejor balance: cada hilo revisa más servidores (≈400), así que el overhead relativo baja y suele haber menos cambios de contexto. Por eso 200 puede rendir mejor que 500 aunque “en papel” Amdahl sugiera que más hilos ayudan.
+
+### Respuesta 2: 
+
+Si usamos tantos hilos como núcleos, típicamente obtenemos una ejecución muy eficiente: cada hilo tiene CPU disponible y el costo de planificación del sistema operativo es bajo. En nuestro caso, como cada hilo hace muchas consultas independientes (`isInBlackListServer()`), esta configuración suele ser estable y predecible.
+
+Cuando pasamos al doble de hilos, a veces mejora un poco (por ejemplo si el procesador tiene Hyperthreading o si hay latencias de memoria), porque mientras un hilo “se queda esperando” a que se resuelvan accesos, otro puede avanzar. Pero la mejora ya no es proporcional: sube el overhead de coordinación (más `join()`, más objetos hilo) y se intensifica el impacto del contador compartido `countApparences` y del context switching. Por eso es normal ver que de N a 2N haya ganancia marginal, y después el rendimiento se estanque o incluso empeore.
+
+### Respuesta 3: 
+
+Si en lugar de 100 hilos en una sola máquina ejecutáramos 1 hilo en cada una de 100 máquinas, la parte “paralelizable” del problema se aprovecharía mejor porque no hay competencia por el mismo CPU: cada máquina revisa su segmento realmente en paralelo. También desaparecería el costo local de tener cientos de hilos compitiendo por planificación, caché y memoria.
+
+Eso sí, aparece otro costo que en una sola máquina casi no existe: coordinar resultados entre máquinas (red, latencia, agregación). En un Black List Search distribuido, además necesitaríamos un mecanismo para detener el trabajo cuando globalmente ya se llegó a `BLACK_LIST_ALARM_COUNT = 5`, lo cual introduce sincronización distribuida.
+
+Si en vez de 100 máquinas con 1 hilo usamos 100/c máquinas y en cada una ejecutamos c hilos (asumiendo c núcleos por máquina), normalmente mejora porque reducimos el número de nodos que deben coordinarse por red y, al mismo tiempo, aprovechamos bien los núcleos de cada máquina. En otras palabras: mantenemos paralelismo real, pero con menos sobrecosto de comunicación.
