@@ -5,6 +5,7 @@ import edu.eci.arsw.spamkeywordsdatasource.HostBlacklistsDataSourceFacade;
 import java.util.LinkedList;
 
 public class HostBlackListsThread extends Thread {
+    public static int countApparences = 0;
     private String ipAddress;
     private int start;
     private int end;
@@ -23,10 +24,11 @@ public class HostBlackListsThread extends Thread {
 
     @Override
     public void run() {
-        for (int i = start; i < end && ocurrencesCount< HostBlackListsValidator.BLACK_LIST_ALARM_COUNT; i++) {
+        for (int i = start; i < end && countApparences < HostBlackListsValidator.BLACK_LIST_ALARM_COUNT; i++) {
             checkedListsCount++;
 
             if (skds.isInBlackListServer(i, ipAddress)) {
+                countApparences++;
                 blackListOcurrences.add(i);
                 ocurrencesCount++;
             }
