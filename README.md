@@ -113,24 +113,20 @@ Un aspecto relevante a destacar es que, al ejecutar el programa con 100 hilos, n
 
 ## Solución Parte IV
 
-### Respuesta 1: 
+### Respuesta 1: ¿Por qué el mejor desempeño no se logra con 500 hilos?
 
-En este ejercicio, en nuestra implementación `checkHost()` parte el rango de búsqueda (≈80.000 servidores) en N segmentos y crea N hilos; luego esperamos a todos con `join()`. Cuando N es muy grande (por ejemplo 500), cada hilo termina revisando un pedacito muy pequeño (≈160 servidores). Eso hace que el costo fijo de “montar la paralelización” (crear hilos, hacer `start()` y luego sincronizar con `join()`) empiece a pesar más que el trabajo útil (llamar a `skds.isInBlackListServer()`).
+En nuestra implementación, `checkHost()` divide ≈80.000 servidores entre N hilos y luego sincroniza con `join()`. Con 500 hilos, a cada uno le toca muy poco trabajo, así que el costo de crear/planificar hilos y esperar a que terminen empieza a dominar frente al trabajo útil (`isInBlackListServer()`).
 
-Además, en nuestra implementación usamos un contador global compartido (`HostBlackListsThread.countApparences`) como condición de parada en el `for` de cada hilo. Con muchos hilos, ese contador se vuelve un punto de contención y, como no está protegido (no es atómico ni está sincronizado), pueden aparecer efectos de carrera: hilos que no ven a tiempo el valor actualizado y siguen consultando más listas de las necesarias. En paralelo, el sistema operativo también pierde tiempo alternando entre muchísimos hilos (context switching) cuando hay muchos más hilos que núcleos reales.
+Con 200 hilos el segmento por hilo es mayor, el overhead relativo baja y suele haber menos cambios de contexto; por eso muchas veces 200 rinde mejor que 500.
 
-Comparado con 200 hilos, normalmente se obtiene un mejor balance: cada hilo revisa más servidores (≈400), así que el overhead relativo baja y suele haber menos cambios de contexto. Por eso 200 puede rendir mejor que 500 aunque “en papel” Amdahl sugiera que más hilos ayudan.
+### Respuesta 2: ¿Núcleos vs el doble de núcleos?
 
-### Respuesta 2: 
+Con N hilos (N = núcleos), normalmente logramos una ejecución eficiente y estable, con poco overhead del sistema operativo.
 
-Si usamos tantos hilos como núcleos, típicamente obtenemos una ejecución muy eficiente: cada hilo tiene CPU disponible y el costo de planificación del sistema operativo es bajo. En nuestro caso, como cada hilo hace muchas consultas independientes (`isInBlackListServer()`), esta configuración suele ser estable y predecible.
+Con 2N hilos puede haber una mejora pequeña, pero también aumentan el overhead, el context switching y el efecto del contador compartido `countApparences`. Por eso la ganancia suele ser marginal y puede estancarse.
 
-Cuando pasamos al doble de hilos, a veces mejora un poco (por ejemplo si el procesador tiene Hyperthreading o si hay latencias de memoria), porque mientras un hilo “se queda esperando” a que se resuelvan accesos, otro puede avanzar. Pero la mejora ya no es proporcional: sube el overhead de coordinación (más `join()`, más objetos hilo) y se intensifica el impacto del contador compartido `countApparences` y del context switching. Por eso es normal ver que de N a 2N haya ganancia marginal, y después el rendimiento se estanque o incluso empeore.
+### Respuesta 3: ¿Y si en vez de una CPU fueran muchas máquinas?
 
-### Respuesta 3: 
+Si distribuimos el trabajo en 100 máquinas, la búsqueda se paraleliza “de verdad” y evitamos la competencia local por CPU y planificación.
 
-Si en lugar de 100 hilos en una sola máquina ejecutáramos 1 hilo en cada una de 100 máquinas, la parte “paralelizable” del problema se aprovecharía mejor porque no hay competencia por el mismo CPU: cada máquina revisa su segmento realmente en paralelo. También desaparecería el costo local de tener cientos de hilos compitiendo por planificación, caché y memoria.
-
-Eso sí, aparece otro costo que en una sola máquina casi no existe: coordinar resultados entre máquinas (red, latencia, agregación). En un Black List Search distribuido, además necesitaríamos un mecanismo para detener el trabajo cuando globalmente ya se llegó a `BLACK_LIST_ALARM_COUNT = 5`, lo cual introduce sincronización distribuida.
-
-Si en vez de 100 máquinas con 1 hilo usamos 100/c máquinas y en cada una ejecutamos c hilos (asumiendo c núcleos por máquina), normalmente mejora porque reducimos el número de nodos que deben coordinarse por red y, al mismo tiempo, aprovechamos bien los núcleos de cada máquina. En otras palabras: mantenemos paralelismo real, pero con menos sobrecosto de comunicación.
+Si usamos 100/c máquinas y en cada una ejecutamos c hilos, normalmente es mejor: aprovechamos los núcleos de cada máquina y reducimos la coordinación por red al tener menos nodos.
