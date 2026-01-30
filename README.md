@@ -113,3 +113,23 @@ Un aspecto relevante a destacar es que, al ejecutar el programa con 100 hilos, n
 2. Cómo se comporta la solución usando tantos hilos de procesamiento como núcleos comparado con el resultado de usar el doble de éste?.
 
 3. De acuerdo con lo anterior, si para este problema en lugar de 100 hilos en una sola CPU se pudiera usar 1 hilo en cada una de 100 máquinas hipotéticas, la ley de Amdahls se aplicaría mejor?. Si en lugar de esto se usaran c hilos en 100/c máquinas distribuidas (siendo c es el número de núcleos de dichas máquinas), se mejoraría?. Explique su respuesta.
+
+## Solución Parte IV
+
+### Respuesta 1: ¿Por qué el mejor desempeño no se logra con 500 hilos?
+
+En nuestra implementación, `checkHost()` divide ≈80.000 servidores entre N hilos y luego sincroniza con `join()`. Con 500 hilos, a cada uno le toca muy poco trabajo, así que el costo de crear/planificar hilos y esperar a que terminen empieza a dominar frente al trabajo útil (`isInBlackListServer()`).
+
+Con 200 hilos el segmento por hilo es mayor, el overhead relativo baja y suele haber menos cambios de contexto; por eso muchas veces 200 rinde mejor que 500.
+
+### Respuesta 2: ¿Núcleos vs el doble de núcleos?
+
+Con N hilos (N = núcleos), normalmente logramos una ejecución eficiente y estable, con poco overhead del sistema operativo.
+
+Con 2N hilos puede haber una mejora pequeña, pero también aumentan el overhead, el context switching y el efecto del contador compartido `countApparences`. Por eso la ganancia suele ser marginal y puede estancarse.
+
+### Respuesta 3: ¿Y si en vez de una CPU fueran muchas máquinas?
+
+Si distribuimos el trabajo en 100 máquinas, la búsqueda se paraleliza “de verdad” y evitamos la competencia local por CPU y planificación.
+
+Si usamos 100/c máquinas y en cada una ejecutamos c hilos, normalmente es mejor: aprovechamos los núcleos de cada máquina y reducimos la coordinación por red al tener menos nodos.
