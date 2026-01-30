@@ -16,6 +16,8 @@ public class Main {
     public static void main(String a[]){
         HostBlackListsValidator hblv=new HostBlackListsValidator();
         List<Integer> blackListOcurrences = null;
+        int core = Runtime.getRuntime().availableProcessors();
+        System.out.println(core);
         try {
             blackListOcurrences = hblv.checkHost("202.24.34.55", 100);
         } catch (InterruptedException ex) {

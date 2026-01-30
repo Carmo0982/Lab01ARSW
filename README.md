@@ -75,6 +75,32 @@ Al iniciar el programa ejecute el monitor jVisualVM, y a medida que corran las p
 
 Con lo anterior, y con los tiempos de ejecución dados, haga una gráfica de tiempo de solución vs. número de hilos. Analice y plantee hipótesis con su compañero para las siguientes preguntas (puede tener en cuenta lo reportado por jVisualVM):
 
+**Solución parte III**
+
+Captura con un solo hilo:
+![Captura de pantalla 2026-01-29 170756.png](img/PruebaThreads/Captura%20de%20pantalla%202026-01-29%20170756.png)
+
+Captura con tantos hilos como núcleos de procesamiento:
+![Captura de pantalla 2026-01-29 170836.png](img/PruebaThreads/Captura%20de%20pantalla%202026-01-29%20170836.png)
+
+Captura con tantos hilos como el doble de núcleos de procesamiento:
+
+![Captura de pantalla 2026-01-29 170925.png](img/PruebaThreads/Captura%20de%20pantalla%202026-01-29%20170925.png)
+
+Captura para 50 hilos:
+
+![Captura de pantalla 2026-01-29 171242.png](img/PruebaThreads/Captura%20de%20pantalla%202026-01-29%20171242.png)
+
+Gráfica de tiempo vs número de hilos:
+
+![Captura de pantalla 2026-01-29 175214.png](img/PruebaThreads/Captura%20de%20pantalla%202026-01-29%20175214.png)
+
+Conclusión:
+
+Los resultados muestran que, al incrementar el número de hilos, el tiempo de ejecución del programa tiende a disminuir, lo que evidencia un aprovechamiento más eficiente del paralelismo disponible en el sistema.
+
+Un aspecto relevante a destacar es que, al ejecutar el programa con 100 hilos, no fue posible realizar el registro en JVisualVM, ya que la ejecución finalizaba en un tiempo tan reducido que la herramienta no alcanzaba a detectar ni monitorear el proceso.
+
 **Parte IV - Ejercicio Black List Search**
 
 1. Según la [ley de Amdahls](https://www.pugetsystems.com/labs/articles/Estimating-CPU-Performance-using-Amdahls-Law-619/#WhatisAmdahlsLaw?):
